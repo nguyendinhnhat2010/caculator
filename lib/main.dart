@@ -1,207 +1,237 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const Calculator());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+class Calculator extends StatefulWidget {
+  const Calculator({Key? key}) : super(key: key);
 
   @override
-  _MyAppState createState() => _MyAppState();
+  _CalculatorState createState() => _CalculatorState();
 }
 
-class _MyAppState extends State<MyApp> {
-  double number1 = 0;
-  double number2 = 0;
-  String sum = "";
+class _CalculatorState extends State<Calculator> {
+  dynamic text = '0';
+  double numOne = 0;
+  double numTwo = 0;
 
-  List<String> textLine1 = [];
-  List<String> textLine2 = [];
-  List<String> textLine3 = [];
-  List<String> textLine4 = [];
-  List<Color> color1 = [];
-  List<Color> color2 = [];
+  dynamic result = '';
+  dynamic finalResult = '';
+  dynamic opr = '';
+  dynamic preOpr = '';
+  void calculation(btnText) {
+    if (btnText == 'AC') {
+      text = '0';
+      numOne = 0;
+      numTwo = 0;
+      result = '';
+      finalResult = '0';
+      opr = '';
+      preOpr = '';
+    } else if (opr == '=' && btnText == '=') {
+      if (preOpr == '+') {
+        finalResult = add();
+      } else if (preOpr == '-') {
+        finalResult = sub();
+      } else if (preOpr == 'x') {
+        finalResult = mul();
+      } else if (preOpr == '/') {
+        finalResult = div();
+      }
+    } else if (btnText == '+' ||
+        btnText == '-' ||
+        btnText == 'x' ||
+        btnText == '/' ||
+        btnText == '=') {
+      if (numOne == 0) {
+        numOne = double.parse(result);
+      } else {
+        numTwo = double.parse(result);
+      }
 
-  @override
-  void initState() {
-    textLine1 = ["AC", "+/-", "%", "/"];
-    textLine2 = ["7", "8", "9", "x"];
-    textLine3 = ["4", "5", "6", "-"];
-    textLine4 = ["1", "2", "3", "+"];
-    color2 = [
-      Colors.deepPurple,
-      Colors.deepPurple,
-      Colors.deepPurple,
-      Colors.orangeAccent
-    ];
-    color1 = [Colors.teal, Colors.teal, Colors.teal, Colors.orangeAccent];
-    super.initState();
+      if (opr == '+') {
+        finalResult = add();
+      } else if (opr == '-') {
+        finalResult = sub();
+      } else if (opr == 'x') {
+        finalResult = mul();
+      } else if (opr == '/') {
+        finalResult = div();
+      }
+      preOpr = opr;
+      opr = btnText;
+      result = '';
+    } else if (btnText == '%') {
+      result = numOne / 100;
+      finalResult = doesContainDecimal(result);
+    } else if (btnText == '.') {
+      if (!result.toString().contains('.')) {
+        result = result.toString() + '.';
+      }
+      finalResult = result;
+    } else if (btnText == '+/-') {
+      result.toString().startsWith('-')
+          ? result = result.toString().substring(1)
+          : result = '-' + result.toString();
+      finalResult = result;
+    } else {
+      result = result + btnText;
+      finalResult = result;
+    }
+
+    setState(() {
+      text = finalResult;
+    });
   }
 
-  calculator() {}
+  String add() {
+    result = (numOne + numTwo).toString();
+    numOne = double.parse(result);
+    return doesContainDecimal(result);
+  }
+
+  String sub() {
+    result = (numOne - numTwo).toString();
+    numOne = double.parse(result);
+    return doesContainDecimal(result);
+  }
+
+  String mul() {
+    result = (numOne * numTwo).toString();
+    numOne = double.parse(result);
+    return doesContainDecimal(result);
+  }
+
+  String div() {
+    result = (numOne / numTwo).toString();
+    numOne = double.parse(result);
+    return doesContainDecimal(result);
+  }
+
+  String doesContainDecimal(dynamic result) {
+    if (result.toString().contains('.')) {
+      List<String> splitDecimal = result.toString().split('.');
+      if (!(int.parse(splitDecimal[1]) > 0))
+        return result = splitDecimal[0].toString();
+    }
+    return result;
+  }
+
+  Widget calcbtn(String textBtn, Color colorBtn, Color colorTextBtn) {
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        child: ElevatedButton(
+            onPressed: () {
+              calculation(textBtn);
+            },
+            child: Text(
+              textBtn,
+              style: TextStyle(
+                  fontSize: 20,
+                  color: colorTextBtn,
+                  fontWeight: FontWeight.bold),
+            ),
+            style: ElevatedButton.styleFrom(
+              fixedSize: const Size(60, 60),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(50)),
+              primary: colorBtn,
+            )),
+      ),
+    );
+  }
+
+  Widget calcbtn0(String textBtn, Color colorBtn, Color colorTextBtn) {
+    return Expanded(
+      flex: 2,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        child: ElevatedButton(
+            onPressed: () {
+              calculation(textBtn);
+            },
+            child: Text(
+              textBtn,
+              style: TextStyle(
+                  fontSize: 20,
+                  color: colorTextBtn,
+                  fontWeight: FontWeight.bold),
+            ),
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              primary: colorBtn,
+              padding: const EdgeInsets.symmetric(vertical: 26),
+            )),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       home: Scaffold(
-        backgroundColor: Colors.blueGrey,
         appBar: AppBar(
-          toolbarHeight: 70,
-          backgroundColor: Colors.teal[300],
+          backgroundColor: Colors.teal,
           title: const Center(
             child: Text("Calculator"),
           ),
         ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(right: 20),
-                    child: const Text(
-                      "0",
-                      style: TextStyle(fontSize: 70),
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  for (int i = 0; i < 4; i++)
-                    Expanded(
-                        child: Container(
-                            margin: const EdgeInsets.only(bottom: 15),
-                            child: ElevatedButton(
-                              onPressed: () {},
-                              child: Text(
-                                textLine1[i],
-                                style: const TextStyle(fontSize: 18),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                shape: const CircleBorder(),
-                                padding: const EdgeInsets.all(25),
-                                primary: color1[i], // <-- Text color
-                              ),
-                            )))
-                ],
-              ),
-              Row(
-                children: [
-                  for (int i = 0; i < 4; i++)
-                    Expanded(
-                        child: Container(
-                            margin: EdgeInsets.only(bottom: 15),
-                            child: ElevatedButton(
-                              onPressed: () {},
-                              child: Text(
-                                textLine2[i],
-                                style: const TextStyle(fontSize: 18),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                shape: const CircleBorder(),
-                                padding: const EdgeInsets.all(25),
-                                primary: color2[i], // <-- Text color
-                              ),
-                            )))
-                ],
-              ),
-              Row(
-                children: [
-                  for (int i = 0; i < 4; i++)
-                    Expanded(
-                        child: Container(
-                            margin: EdgeInsets.only(bottom: 15),
-                            child: ElevatedButton(
-                              onPressed: () {},
-                              child: Text(
-                                textLine3[i],
-                                style: const TextStyle(fontSize: 18),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                shape: const CircleBorder(),
-                                padding: const EdgeInsets.all(25),
-                                primary: color2[i], // <-- Text color
-                              ),
-                            )))
-                ],
-              ),
-              Row(
-                children: [
-                  for (int i = 0; i < 4; i++)
-                    Expanded(
-                        child: Container(
-                            margin: EdgeInsets.only(bottom: 15),
-                            child: ElevatedButton(
-                              onPressed: () {},
-                              child: Text(
-                                textLine4[i],
-                                style: const TextStyle(fontSize: 18),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                shape: const CircleBorder(),
-                                padding: const EdgeInsets.all(25),
-                                primary: color2[i], // <-- Text color
-                              ),
-                            )))
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                      flex: 2,
-                      child: Container(
-                        margin: EdgeInsets.only(left: 15, right: 15),
-                        child: ElevatedButton(
-                          onPressed: () {},
-                          child: const Text(
-                            "0",
-                            style: TextStyle(fontSize: 18),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30.0)),
-                            padding: const EdgeInsets.only(top: 20, bottom: 20),
-                            primary: Colors.deepPurple,
-                          ),
-                        ),
-                      )),
-                  Expanded(
-                      flex: 1,
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        child: const Text(
-                          ",",
-                          style: TextStyle(fontSize: 18),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          shape: const CircleBorder(),
-                          padding: const EdgeInsets.all(25),
-                          primary: Colors.deepPurple,
-                        ),
-                      )),
-                  Expanded(
-                      flex: 1,
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        child: const Text(
-                          "=",
-                          style: TextStyle(fontSize: 18),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                            shape: const CircleBorder(),
-                            padding: const EdgeInsets.all(25),
-                            primary: Colors.orangeAccent),
-                      )),
-                ],
-              ),
-            ],
-          ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(right: 10, bottom: 50),
+                  child: Text(text, style: TextStyle(fontSize: 100)),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                calcbtn("AC", Colors.teal, Colors.white),
+                calcbtn("+/-", Colors.teal, Colors.white),
+                calcbtn("%", Colors.teal, Colors.white),
+                calcbtn("/", Colors.orange, Colors.white)
+              ],
+            ),
+            Row(
+              children: [
+                calcbtn("7", Colors.deepPurple, Colors.white),
+                calcbtn("8", Colors.deepPurple, Colors.white),
+                calcbtn("9", Colors.deepPurple, Colors.white),
+                calcbtn("x", Colors.orange, Colors.white)
+              ],
+            ),
+            Row(
+              children: [
+                calcbtn("4", Colors.deepPurple, Colors.white),
+                calcbtn("5", Colors.deepPurple, Colors.white),
+                calcbtn("6", Colors.deepPurple, Colors.white),
+                calcbtn("-", Colors.orange, Colors.white)
+              ],
+            ),
+            Row(
+              children: [
+                calcbtn("1", Colors.deepPurple, Colors.white),
+                calcbtn("2", Colors.deepPurple, Colors.white),
+                calcbtn("3", Colors.deepPurple, Colors.white),
+                calcbtn("+", Colors.orange, Colors.white)
+              ],
+            ),
+            Row(
+              children: [
+                calcbtn0("0", Colors.deepPurple, Colors.white),
+                calcbtn(".", Colors.deepPurple, Colors.white),
+                calcbtn("=", Colors.orange, Colors.white)
+              ],
+            ),
+          ],
         ),
       ),
     );
